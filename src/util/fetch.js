@@ -149,8 +149,15 @@ const fetcher = async (...args) => {
           // Nota: Las notificaciones son específicas del usuario, así que el cache debe ser por usuario
         }
       } catch (cacheError) {
-        // No fallar si hay error al guardar en cache
-        console.warn("Error guardando en cache:", cacheError);
+        // No fallar si hay error al guardar en cache; ignorar cierre de IDB (estado esperado al recargar)
+        const isClosing =
+          cacheError?.name === "InvalidStateError" &&
+          typeof cacheError?.message === "string" &&
+          cacheError.message.toLowerCase().includes("closing");
+
+        if (!isClosing) {
+          console.warn("Error guardando en cache:", cacheError);
+        }
       }
     }
     return res.data;
