@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "cross-env NODE_OPTIONS=--openssl-legacy-provider next dev -H 0.0.0.0",
     "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider next build",
-    "start": "next start"
+    "start": "next start",
+    "postinstall": "echo 'Dependencies installed'"
   },
   "dependencies": {
     "@heroicons/react": "^1.0.1",
