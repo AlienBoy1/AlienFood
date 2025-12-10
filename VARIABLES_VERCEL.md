@@ -23,15 +23,27 @@ VAPID_PRIVATE_KEY = [tu-clave-privada-completa]
 - No dejes espacios al inicio o final
 - Selecciona los 3 entornos: Production, Preview, Development
 
-### 2. MongoDB (Si usas MongoDB)
+### 2. MongoDB (REQUERIDO)
 
 ```
 MONGODB_URI = [tu-uri-de-mongodb]
+MONGODB_DB = [nombre-de-tu-base-de-datos]
 ```
 
-Ejemplo: `mongodb+srv://usuario:password@cluster.mongodb.net/database?retryWrites=true&w=majority`
+**Ejemplo de MONGODB_URI:**
+```
+mongodb+srv://usuario:password@cluster.mongodb.net/database?retryWrites=true&w=majority
+```
 
-**Selecciona:** Production, Preview, Development
+**Ejemplo de MONGODB_DB:**
+```
+alienfood
+```
+o el nombre que uses para tu base de datos.
+
+**⚠️ IMPORTANTE:** Ambas variables son REQUERIDAS. Sin ellas, el build fallará.
+
+**Selecciona:** Production, Preview, Development (para ambas)
 
 ### 3. NextAuth (Para autenticación)
 
