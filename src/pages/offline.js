@@ -12,3 +12,10 @@ export default function OfflinePage() {
   );
 }
 
+// Generar estáticamente la página para que esté disponible en /offline
+export async function getStaticProps() {
+  return {
+    props: {},
+  };
+}
+
