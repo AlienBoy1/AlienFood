@@ -15,6 +15,7 @@ module.exports = withPWA({
       document: '/offline', // Usar rewrite a /offline.html
     },
     // Importar el Service Worker personalizado después del generado
+    // Esto carga el código de push notifications en el SW principal
     importScripts: ['/sw-custom.js'],
   },
   env: {

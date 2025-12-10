@@ -96,7 +96,8 @@ self.addEventListener('fetch', function(event) {
 // Esto debe hacerse ANTES de cualquier otra cosa para asegurar que esté listo
 console.log("📋 Service Worker personalizado cargado - Registrando listener de push...");
 
-// Manejo de notificaciones push - REGISTRAR INMEDIATAMENTE
+// REGISTRAR EL LISTENER DE PUSH INMEDIATAMENTE - ANTES DE CUALQUIER OTRA COSA
+// Esto es crítico porque si el listener no está registrado cuando llega el evento push, se perderá
 self.addEventListener("push", async function (event) {
   console.log("🔔 ========== PUSH EVENT RECIBIDO ==========");
   console.log("Service Worker activo:", self.registration.active ? "Sí" : "No");
