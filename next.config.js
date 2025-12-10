@@ -12,7 +12,7 @@ module.exports = withPWA({
     skipWaiting: true,
     // Mejorar el manejo offline
     fallbacks: {
-      document: '/offline', // Página de fallback si no hay cache
+      document: '/offline.html', // Fallback estático en public para evitar 404
     },
   },
   env: {
