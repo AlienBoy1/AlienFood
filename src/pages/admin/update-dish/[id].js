@@ -127,15 +127,24 @@ UpdateDish.admin = true;
 export default UpdateDish;
 
 export const getStaticPaths = async () => {
-  const { db } = await connectToDatabase();
-  const dishes = await db.collection("dishes").find({}).toArray();
-  const paths = dishes.map((dish) => ({
-    params: { id: dish._id.toString() },
-  }));
-  return {
-    paths,
-    fallback: true,
-  };
+  try {
+    const { db } = await connectToDatabase();
+    const dishes = await db.collection("dishes").find({}).toArray();
+    const paths = dishes.map((dish) => ({
+      params: { id: dish._id.toString() },
+    }));
+    return {
+      paths,
+      fallback: true,
+    };
+  } catch (error) {
+    console.error("Error connecting to database in getStaticPaths:", error.message);
+    // Retornar paths vacío si hay error de conexión durante el build
+    return {
+      paths: [],
+      fallback: true,
+    };
+  }
 };
 
 export const getStaticProps = async (context) => {

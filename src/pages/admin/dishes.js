@@ -95,13 +95,24 @@ Dishes.admin = true;
 export default Dishes;
 
 export const getStaticProps = async () => {
-  const { db } = await connectToDatabase();
-  let dishes = await db.collection("dishes").find({}).toArray();
-  dishes = JSON.parse(JSON.stringify(dishes));
-  return {
-    props: {
-      dishes,
-    },
-    revalidate: 1,
-  };
+  try {
+    const { db } = await connectToDatabase();
+    let dishes = await db.collection("dishes").find({}).toArray();
+    dishes = JSON.parse(JSON.stringify(dishes));
+    return {
+      props: {
+        dishes,
+      },
+      revalidate: 1,
+    };
+  } catch (error) {
+    console.error("Error connecting to database:", error.message);
+    // Retornar array vacío si hay error de conexión durante el build
+    return {
+      props: {
+        dishes: [],
+      },
+      revalidate: 1,
+    };
+  }
 };
