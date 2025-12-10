@@ -15,6 +15,17 @@ async function waitForServiceWorker(maxAttempts = 15, delay = 800) {
     throw new Error("No se pudo obtener el registro del service worker. Asegúrate de que esté registrado.");
   }
   
+  // Si hay uno en espera, forzar activación inmediata
+  if (registration.waiting) {
+    try {
+      console.debug("⏸️ SW en waiting; enviando SKIP_WAITING");
+      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    } catch (e) {
+      console.warn("No se pudo forzar activación del SW en espera:", e);
+    }
+  }
+  
   // Verificar que el service worker esté activo con reintentos más largos
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     // Verificar que esté activo

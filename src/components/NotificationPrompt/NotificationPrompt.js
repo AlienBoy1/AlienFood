@@ -93,9 +93,9 @@ function NotificationPrompt() {
         return;
       }
 
-      // Esperar un momento para asegurar que el service worker esté completamente listo
+      // Esperar a que el service worker esté completamente listo (con fallback)
       console.log("⏳ Esperando a que el service worker esté completamente listo...");
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 800));
 
       // Esperar a que el service worker esté listo
       let registration;
@@ -103,13 +103,25 @@ function NotificationPrompt() {
         registration = await navigator.serviceWorker.ready;
         console.log("✅ Service Worker listo:", registration);
         
+        // Si hay uno en espera, forzar activación
+        if (registration.waiting) {
+          console.log("⏸️ SW en espera, enviando SKIP_WAITING");
+          registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
         // Verificar que esté activo
         if (!registration.active) {
-          console.warn("⚠️ Service Worker no está activo, esperando...");
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          console.warn("⚠️ Service Worker no está activo, intentando esperar y activar...");
+          await new Promise(resolve => setTimeout(resolve, 1500));
           
+          if (registration.waiting) {
+            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+
           if (!registration.active) {
-            throw new Error("El service worker no está activo. Por favor, recarga la página completamente (Ctrl+F5) y espera unos segundos antes de intentar de nuevo.");
+            throw new Error("El service worker no está activo. Recarga la página (Ctrl+F5) y espera unos segundos antes de intentar de nuevo.");
           }
         }
       } catch (e) {

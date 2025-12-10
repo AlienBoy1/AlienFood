@@ -234,6 +234,12 @@ function MyApp({ Component, pageProps }) {
             });
             
             console.log(`✅ Service Worker registrado (${swPath})`);
+
+            // Fallback: si hay uno en espera, forzar activación inmediata
+            if (registration.waiting) {
+              console.log("⏸️ Service Worker en espera, enviando SKIP_WAITING");
+              registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+            }
             
             // Verificar estado después de un momento
             setTimeout(() => {
