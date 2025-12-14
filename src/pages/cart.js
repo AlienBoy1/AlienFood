@@ -105,7 +105,7 @@ function Cart() {
                   objectFit="contain"
                 />
                 <h3 className="lg:text-2xl text-xl font-medium mt-4">
-                  Tu Carrito está Vacío
+                 No hay nada por aquí! 🤔
                 </h3>
               </div>
             </div>
@@ -127,7 +127,7 @@ function Cart() {
                   disabled={disabled}
                 >
                   <CreditCardIcon className="sm:w-6 w-5" />
-                  <span className="ml-2">Proceder al pago</span>
+                  <span className="ml-2">Continuar con el pago</span>
                 </button>
               ) : (
                 <button
@@ -135,7 +135,7 @@ function Cart() {
                   className="button mt-6 lg:text-lg text-base py-2"
                   onClick={() => router.push("/login")}
                 >
-                  Inicia sesión para pagar
+                Identificarse para continuar
                 </button>
               )}
             </div>

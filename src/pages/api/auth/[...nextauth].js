@@ -13,22 +13,38 @@ export default NextAuth({
       },
       async authorize(credentials) {
         try {
+          // Validar y sanitizar credenciales
+          if (!credentials || !credentials.username || !credentials.password) {
+            throw new Error("Usuario y contraseña son requeridos");
+          }
+
+          // Sanitizar username para prevenir inyección
+          const username = credentials.username.trim().slice(0, 50);
+          const password = credentials.password;
+
+          if (username.length < 3 || username.length > 20) {
+            throw new Error("Usuario o contraseña incorrectos");
+          }
+
           const { db } = await connectToDatabase();
+          
+          // Usar query sanitizado para prevenir inyección NoSQL
           const user = await db.collection("users").findOne({
-            username: credentials.username,
+            username: username,
           });
 
           if (!user) {
-            throw new Error("Usuario no encontrado");
+            // No revelar si el usuario existe o no (mejor seguridad)
+            throw new Error("Usuario o contraseña incorrectos");
           }
 
           const isValid = await bcrypt.compare(
-            credentials.password,
+            password,
             user.password
           );
 
           if (!isValid) {
-            throw new Error("Contraseña incorrecta");
+            throw new Error("Usuario o contraseña incorrectos");
           }
 
           return {

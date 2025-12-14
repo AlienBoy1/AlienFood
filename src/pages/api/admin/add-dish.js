@@ -1,32 +1,68 @@
 import { getSession } from "next-auth/client";
 import { connectToDatabase } from "../../../util/mongodb";
+import { withAdmin } from "../../../middleware/auth";
+import { validateDishData } from "../../../util/security";
+import { checkRateLimit } from "../../../util/rateLimiter";
+import { setSecurityHeaders } from "../../../util/security";
 
-export default async (req, res) => {
-    try {
-        if (req.method === "POST") {
-            const session = await getSession({ req });
-            if (session) {
-                const { db } = await connectToDatabase();
-                const admin = await db
-                    .collection("admins")
-                    .findOne({ user: session.user.email });
-                if (!admin) {
-                    return res.status(401).json({ message: "Unauthorized" });
-                } else {
-                    const dish = { ...req.body, price: parseInt(req.body.price) };
-                    await db.collection("dishes").insertOne(dish);
-                    return res
-                        .status(200)
-                        .json({ message: "Dish added successfully" });
-                }
-            } else {
-                return res.status(401).json({ message: "Unauthorized" });
-            }
-        } else {
-            return res.status(400).json({ message: "Bad Request" });
-        }
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ message: "Internal Server Error" });
+async function handler(req, res) {
+    // Aplicar rate limiting
+    const canContinue = await checkRateLimit(req, res);
+    if (!canContinue) {
+        return; // Ya se envió respuesta 429
     }
-};
+
+    // Agregar headers de seguridad
+    setSecurityHeaders(res);
+
+    if (req.method !== "POST") {
+        return res.status(405).json({ message: "Método no permitido" });
+    }
+
+    try {
+        // Validar y sanitizar datos
+        const validation = validateDishData(req.body);
+        
+        if (!validation.isValid) {
+            return res.status(400).json({
+                message: validation.errors[0] || "Datos inválidos",
+                errors: validation.errors,
+            });
+        }
+
+        const { db } = await connectToDatabase();
+        
+        // Verificar que la categoría existe
+        const category = await db.collection("categories").findOne({
+            name: validation.data.category,
+        });
+        
+        if (!category) {
+            return res.status(400).json({
+                message: "La categoría especificada no existe",
+            });
+        }
+
+        // Crear el platillo con datos validados
+        const dish = {
+            ...validation.data,
+            price: validation.data.price,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        };
+
+        const result = await db.collection("dishes").insertOne(dish);
+        
+        return res.status(201).json({
+            message: "Platillo agregado exitosamente",
+            dishId: result.insertedId,
+        });
+    } catch (err) {
+        console.error("Error agregando platillo:", err);
+        return res.status(500).json({
+            message: "Error interno del servidor",
+        });
+    }
+}
+
+export default withAdmin(handler);

@@ -1,7 +1,10 @@
 import { connectToDatabase } from "../../../util/mongodb";
-import { getSession } from "next-auth/client";
 import webpush from "web-push";
 import { getVapidKeys, configureWebPush } from "../../../util/vapid";
+import { withAdmin } from "../../../middleware/auth";
+import { validateNotificationData } from "../../../util/security";
+import { checkRateLimit } from "../../../util/rateLimiter";
+import { setSecurityHeaders } from "../../../util/security";
 
 // Asegurarnos de que web-push está configurado con las VAPID keys (desde env o generadas en memoria)
 // IMPORTANTE: configureWebPush debe llamarse antes de cada envío para asegurar que las keys estén configuradas
@@ -22,23 +25,32 @@ function ensureWebPushConfigured() {
 // Configurar al cargar el módulo
 ensureWebPushConfigured();
 
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ message: "Método no permitido" });
-  }
-
-  try {
-    const session = await getSession({ req });
-
-    if (!session || !session.admin) {
-      return res.status(401).json({ message: "No autorizado" });
+async function handler(req, res) {
+    // Aplicar rate limiting
+    const canContinue = await checkRateLimit(req, res);
+    if (!canContinue) {
+        return; // Ya se envió respuesta 429
     }
 
-    const { title, message, userId } = req.body;
+    // Agregar headers de seguridad
+    setSecurityHeaders(res);
 
-    if (!title || !message) {
-      return res.status(400).json({ message: "Título y mensaje son requeridos" });
+    if (req.method !== "POST") {
+        return res.status(405).json({ message: "Método no permitido" });
     }
+
+    try {
+        // Validar y sanitizar datos
+        const validation = validateNotificationData(req.body);
+        
+        if (!validation.isValid) {
+            return res.status(400).json({
+                message: validation.errors[0] || "Datos inválidos",
+                errors: validation.errors,
+            });
+        }
+
+        const { title, message, userId } = validation.data;
 
     const { db } = await connectToDatabase();
 
@@ -228,18 +240,20 @@ export default async function handler(req, res) {
       })
     );
 
-    const successful = results.filter((r) => r.status === "fulfilled" && r.value.success).length;
-    const failed = results.length - successful;
+        const successful = results.filter((r) => r.status === "fulfilled" && r.value.success).length;
+        const failed = results.length - successful;
 
-    return res.status(200).json({
-      message: "Notificaciones enviadas",
-      sent: successful,
-      failed: failed,
-      total: subscriptions.length,
-    });
-  } catch (error) {
-    console.error("Error enviando notificaciones:", error);
-    return res.status(500).json({ message: "Error interno del servidor" });
-  }
+        return res.status(200).json({
+            message: "Notificaciones enviadas",
+            sent: successful,
+            failed: failed,
+            total: subscriptions.length,
+        });
+    } catch (error) {
+        console.error("Error enviando notificaciones:", error);
+        return res.status(500).json({ message: "Error interno del servidor" });
+    }
 }
+
+export default withAdmin(handler);
 

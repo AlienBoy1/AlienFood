@@ -2,23 +2,40 @@ import { getSession } from "next-auth/client";
 import { connectToDatabase } from "../../../util/mongodb";
 import { ObjectId } from "bson";
 import bcrypt from "bcryptjs";
+import { validateProfileUpdateData, sanitizeObject, sanitizeMongoQuery, validateEmail, validateUsername, validateName, sanitizeString } from "../../../util/validation";
+import { withAuth } from "../../../middleware/auth";
+import { checkRateLimit } from "../../../util/rateLimiter";
 
-export default async function handler(req, res) {
+async function handler(req, res) {
+  // Aplicar rate limiting
+  const canContinue = await checkRateLimit(req, res);
+  if (!canContinue) {
+    return; // Ya se envió respuesta 429
+  }
+
   if (req.method !== "PUT") {
     return res.status(405).json({ message: "Método no permitido" });
   }
 
   try {
-    const session = await getSession({ req });
+    const session = req.session; // Ya viene del middleware withAuth
 
-    if (!session || !session.user) {
-      return res.status(401).json({ message: "No autorizado" });
-    }
+    // Sanitizar y validar datos de entrada
+    const sanitizedData = sanitizeObject(req.body);
+    const { name, username, email, password, image } = sanitizedData;
 
-    const { name, username, email, password, image } = req.body;
-
+    // Verificar que al menos un campo esté presente
     if (!name && !username && !email && !password && !image) {
       return res.status(400).json({ message: "Al menos un campo debe ser actualizado" });
+    }
+
+    // Validar datos actualizados
+    const validation = validateProfileUpdateData(sanitizedData);
+    if (!validation.isValid) {
+      return res.status(400).json({ 
+        message: validation.errors[0] || "Datos inválidos",
+        errors: validation.errors 
+      });
     }
 
     const { db } = await connectToDatabase();
@@ -32,17 +49,27 @@ export default async function handler(req, res) {
 
     const updateData = {};
 
-    if (name) updateData.name = name;
-    if (username) updateData.username = username;
-    if (image) updateData.image = image;
+    if (name && validateName(name)) updateData.name = name;
+    if (username && validateUsername(username)) updateData.username = username;
+    // Validar que image sea una URL válida o un string seguro
+    if (image && typeof image === 'string' && image.length <= 500) {
+      updateData.image = sanitizeString(image, 500);
+    }
 
     // Si se cambia el email, verificar que no esté en uso
     if (email && email !== user.email) {
-      const existingUser = await db.collection("users").findOne({ email });
+      if (!validateEmail(email)) {
+        return res.status(400).json({ message: "El correo electrónico no es válido" });
+      }
+      
+      const sanitizedEmail = sanitizeObject({ email }).email;
+      const query = sanitizeMongoQuery({ email: sanitizedEmail });
+      const existingUser = await db.collection("users").findOne(query);
+      
       if (existingUser) {
         return res.status(400).json({ message: "El correo electrónico ya está en uso" });
       }
-      updateData.email = email;
+      updateData.email = sanitizedEmail;
 
       // Si el usuario es admin, actualizar la referencia en admins
       const adminExists = await db.collection("admins").findOne({ user: user.email });
@@ -64,10 +91,13 @@ export default async function handler(req, res) {
 
     // Verificar si el username ya está en uso por otro usuario
     if (username && username !== user.username) {
-      const existingUser = await db.collection("users").findOne({
+      const sanitizedUsername = sanitizeObject({ username }).username;
+      const query = sanitizeMongoQuery({
         _id: { $ne: user._id },
-        username: username,
+        username: sanitizedUsername,
       });
+      
+      const existingUser = await db.collection("users").findOne(query);
 
       if (existingUser) {
         return res.status(400).json({ message: "El nombre de usuario ya está en uso" });
@@ -100,4 +130,6 @@ export default async function handler(req, res) {
     return res.status(500).json({ message: "Error interno del servidor" });
   }
 }
+
+export default withAuth(handler);
 

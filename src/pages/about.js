@@ -48,8 +48,8 @@ function About() {
                     </span>
                     por
                     <span className="font-semibold text-primary-light underline mx-1">
-                      <Link href="https://itspiyushsati.vercel.app">
-                        Piyush Sati
+                      <Link href="https://aalienfoodwebb.vercel.app/">
+                        Francisco Sanchez
                       </Link>
                     </span>
                     para mejorar y mostrar sus habilidades de desarrollo.
@@ -57,7 +57,7 @@ function About() {
                   <p className="mt-2">
                     Si quieres ponerte en contacto, envía un correo a
                     <span className="link text-primary-light mx-1">
-                      piyushsati311999@gmail.com
+                      francisco.sanchez.22s@utzmg.edu.mx
                     </span>
                   </p>
                 </Fade>

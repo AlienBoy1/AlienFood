@@ -116,7 +116,7 @@ function NotificationsPage() {
                   onClick={markAllAsRead}
                   className="px-4 py-2 bg-primary-light text-white rounded-lg hover:bg-primary-dark transition-colors text-sm font-medium"
                 >
-                  Marcar todas como leídas
+                  Registrar notificaciones como recibidas
                 </button>
               )}
             </div>
@@ -127,12 +127,12 @@ function NotificationsPage() {
             {error ? (
               <div className="p-8 text-center text-gray-500 dark:text-gray-400">
                 <BellIcon className="w-12 h-12 mx-auto mb-2 text-gray-300 dark:text-gray-600" />
-                <p>Error al cargar notificaciones</p>
+                <p>UPS! Algo salió mal</p>
                 <button
                   onClick={() => mutate()}
                   className="mt-4 px-4 py-2 bg-primary-light text-white rounded-lg hover:bg-primary-dark transition-colors text-sm"
                 >
-                  Reintentar
+                  Volver a intentar
                 </button>
               </div>
             ) : !safeNotifications || safeNotifications.length === 0 ? (

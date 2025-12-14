@@ -1,34 +1,62 @@
-import { ObjectId } from "bson";
-import { getSession } from "next-auth/client";
 import { connectToDatabase } from "../../../util/mongodb";
+import { withAdmin } from "../../../middleware/auth";
+import { validateAndConvertObjectId } from "../../../util/security";
+import { checkRateLimit } from "../../../util/rateLimiter";
+import { setSecurityHeaders } from "../../../util/security";
 
-export default async (req, res) => {
-    try {
-        if (req.method === "POST") {
-            const session = await getSession({ req });
-            if (session) {
-                const { db } = await connectToDatabase();
-                const admin = await db
-                    .collection("admins")
-                    .findOne({ user: session.user.email });
-                if (!admin) {
-                    return res.status(401).json({ message: "Unauthorized" });
-                } else {
-                    await db
-                        .collection("dishes")
-                        .deleteOne({ _id: ObjectId(req.body._id) });
-                    return res
-                        .status(200)
-                        .json({ message: "Dish deleted successfully" });
-                }
-            } else {
-                return res.status(401).json({ message: "Unauthorized" });
-            }
-        } else {
-            return res.status(400).json({ message: "Bad Request" });
-        }
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ message: "Internal Server Error" });
+async function handler(req, res) {
+    // Aplicar rate limiting
+    const canContinue = await checkRateLimit(req, res);
+    if (!canContinue) {
+        return; // Ya se envió respuesta 429
     }
-};
+
+    // Agregar headers de seguridad
+    setSecurityHeaders(res);
+
+    if (req.method !== "DELETE" && req.method !== "POST") {
+        return res.status(405).json({ message: "Método no permitido" });
+    }
+
+    try {
+        // Validar ObjectId
+        let dishId;
+        try {
+            const id = req.method === "DELETE" ? req.body._id : req.body._id;
+            dishId = validateAndConvertObjectId(id, "ID del platillo");
+        } catch (error) {
+            return res.status(400).json({ message: error.message });
+        }
+
+        const { db } = await connectToDatabase();
+        
+        // Verificar que el platillo existe
+        const dish = await db.collection("dishes").findOne({ _id: dishId });
+        
+        if (!dish) {
+            return res.status(404).json({
+                message: "Platillo no encontrado",
+            });
+        }
+
+        // Eliminar el platillo
+        const result = await db.collection("dishes").deleteOne({ _id: dishId });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({
+                message: "Platillo no encontrado",
+            });
+        }
+
+        return res.status(200).json({
+            message: "Platillo eliminado exitosamente",
+        });
+    } catch (err) {
+        console.error("Error eliminando platillo:", err);
+        return res.status(500).json({
+            message: "Error interno del servidor",
+        });
+    }
+}
+
+export default withAdmin(handler);

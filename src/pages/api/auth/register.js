@@ -1,35 +1,47 @@
 import { connectToDatabase } from "../../../util/mongodb";
 import bcrypt from "bcryptjs";
+import { validateRegisterData, sanitizeObject, sanitizeMongoQuery } from "../../../util/validation";
+import { registerRateLimiter } from "../../../util/rateLimiter";
+
+// Aplicar rate limiting
+const rateLimitHandler = registerRateLimiter();
 
 export default async function handler(req, res) {
+  // Aplicar rate limiting
+  await new Promise((resolve) => {
+    rateLimitHandler(req, res, resolve);
+  });
+
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Método no permitido" });
   }
 
   try {
-    const { name, username, email, password, confirmPassword } = req.body;
+    // Sanitizar y validar datos de entrada
+    const sanitizedData = sanitizeObject(req.body);
+    const { name, username, email, password, confirmPassword } = sanitizedData;
 
-    // Validaciones
-    if (!name || !username || !email || !password || !confirmPassword) {
-      return res.status(400).json({ message: "Todos los campos son requeridos" });
-    }
-
-    if (password !== confirmPassword) {
-      return res.status(400).json({ message: "Las contraseñas no coinciden" });
-    }
-
-    if (password.length < 6) {
-      return res
-        .status(400)
-        .json({ message: "La contraseña debe tener al menos 6 caracteres" });
+    // Validaciones mejoradas
+    const validation = validateRegisterData(sanitizedData);
+    if (!validation.isValid) {
+      return res.status(400).json({ 
+        message: validation.errors[0] || "Datos inválidos",
+        errors: validation.errors 
+      });
     }
 
     const { db } = await connectToDatabase();
 
-    // Verificar si el usuario ya existe
-    const existingUser = await db.collection("users").findOne({
-      $or: [{ username: username }, { email: email }],
+    // Sanitizar query para prevenir inyección NoSQL
+    const sanitizedUsername = sanitizeObject({ username }).username;
+    const sanitizedEmail = sanitizeObject({ email }).email;
+    
+    // Verificar si el usuario ya existe (con query sanitizado)
+    const query = sanitizeMongoQuery({
+      $or: [{ username: sanitizedUsername }, { email: sanitizedEmail }],
     });
+    
+    const existingUser = await db.collection("users").findOne(query);
 
     if (existingUser) {
       if (existingUser.username === username) {
@@ -43,11 +55,11 @@ export default async function handler(req, res) {
     // Hashear la contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Crear el usuario
+    // Crear el usuario (datos ya sanitizados)
     const result = await db.collection("users").insertOne({
-      name,
-      username,
-      email,
+      name: sanitizedData.name,
+      username: sanitizedUsername,
+      email: sanitizedEmail,
       password: hashedPassword,
       createdAt: new Date(),
     });

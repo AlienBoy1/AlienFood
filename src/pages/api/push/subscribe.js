@@ -2,61 +2,70 @@ import { connectToDatabase } from "../../../util/mongodb";
 import { getSession } from "next-auth/client";
 import { configureWebPush } from "../../../util/vapid";
 import webpush from "web-push";
+import { withAuth } from "../../../middleware/auth";
+import { validatePushSubscription } from "../../../util/security";
+import { checkRateLimit } from "../../../util/rateLimiter";
+import { setSecurityHeaders } from "../../../util/security";
+import { sanitizeObject } from "../../../util/validation";
 
-// Añadimos logs y validaciones adicionales para asegurar que la suscripción
-// tiene endpoint y claves (p256dh, auth) antes de guardarla en la DB.
-
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ message: "Método no permitido" });
-  }
-
-  try {
-    const session = await getSession({ req });
-    
-    if (!session) {
-      return res.status(401).json({ message: "No autorizado" });
+async function handler(req, res) {
+    // Aplicar rate limiting
+    const canContinue = await checkRateLimit(req, res);
+    if (!canContinue) {
+        return; // Ya se envió respuesta 429
     }
 
-    let { subscription } = req.body;
+    // Agregar headers de seguridad
+    setSecurityHeaders(res);
 
-    if (!subscription) {
-      return res.status(400).json({ message: "Suscripción requerida" });
+    if (req.method !== "POST") {
+        return res.status(405).json({ message: "Método no permitido" });
     }
 
-    // Normalizar la suscripción: puede venir en diferentes formatos
-    // Si viene con keys como strings base64, convertirlas a objetos PushSubscriptionKeys
-    if (subscription.keys && typeof subscription.keys.p256dh === 'string') {
-      // Ya está en el formato correcto (base64 strings)
-      // El formato está bien para guardar en MongoDB
-    } else if (subscription.getKey) {
-      // Si es un objeto PushSubscription real (no debería pasar desde el cliente, pero por si acaso)
-      subscription = {
-        endpoint: subscription.endpoint,
-        keys: {
-          p256dh: btoa(String.fromCharCode(...new Uint8Array(subscription.getKey('p256dh')))),
-          auth: btoa(String.fromCharCode(...new Uint8Array(subscription.getKey('auth')))),
-        },
-      };
-    }
+    try {
+        const sanitized = sanitizeObject(req.body);
+        let { subscription } = sanitized;
 
-    // Validación básica de la suscripción
-    const hasEndpoint = !!subscription.endpoint;
-    const hasKeys = !!subscription.keys && !!subscription.keys.p256dh && !!subscription.keys.auth;
+        if (!subscription) {
+            return res.status(400).json({ message: "Suscripción requerida" });
+        }
 
-    if (!hasEndpoint || !hasKeys) {
-      console.error("Suscripción inválida recibida:", {
-        hasEndpoint,
-        hasKeys,
-        hasP256dh: !!subscription.keys?.p256dh,
-        hasAuth: !!subscription.keys?.auth,
-        subscription: subscription ? "presente" : "ausente",
-      });
-      return res.status(400).json({ message: "Suscripción inválida: falta endpoint o keys" });
-    }
+        // Normalizar la suscripción: puede venir en diferentes formatos
+        if (subscription.getKey && typeof subscription.getKey === 'function') {
+            // Si es un objeto PushSubscription real (no debería pasar desde el cliente, pero por si acaso)
+            // En Node.js, usar Buffer en lugar de btoa
+            try {
+                const p256dhKey = subscription.getKey('p256dh');
+                const authKey = subscription.getKey('auth');
+                
+                subscription = {
+                    endpoint: subscription.endpoint,
+                    keys: {
+                        p256dh: Buffer.from(p256dhKey).toString('base64'),
+                        auth: Buffer.from(authKey).toString('base64'),
+                    },
+                };
+            } catch (e) {
+                console.error('Error normalizando suscripción:', e);
+                return res.status(400).json({ message: "Error procesando suscripción" });
+            }
+        }
 
-    console.debug("✅ Suscripción válida recibida para user:", session.user.email);
-    console.debug("Subscription endpoint:", subscription.endpoint.substring(0, 50) + "...");
+        // Validar la suscripción usando la función de validación
+        const validation = validatePushSubscription(subscription);
+        if (!validation.valid) {
+            console.error("Suscripción inválida recibida:", validation.error);
+            return res.status(400).json({ message: validation.error });
+        }
+
+        const session = req.session; // Ya viene del middleware withAuth
+        
+        if (!session || !session.user || !session.user.email) {
+            return res.status(401).json({ message: "No autorizado" });
+        }
+        
+        console.debug("✅ Suscripción válida recibida para user:", session.user.email);
+        console.debug("Subscription endpoint:", subscription.endpoint.substring(0, 50) + "...");
 
     const { db } = await connectToDatabase();
 
@@ -103,11 +112,13 @@ export default async function handler(req, res) {
       console.error("Error procesando notificaciones pendientes:", e);
     }
 
-    return res.status(200).json({ message: "Suscripción guardada exitosamente", subscription });
-  } catch (error) {
-    console.error("Error guardando suscripción:", error);
-    return res.status(500).json({ message: "Error interno del servidor" });
-  }
+        return res.status(200).json({ message: "Suscripción guardada exitosamente" });
+    } catch (error) {
+        console.error("Error guardando suscripción:", error);
+        return res.status(500).json({ message: "Error interno del servidor" });
+    }
 }
+
+export default withAuth(handler);
 
 

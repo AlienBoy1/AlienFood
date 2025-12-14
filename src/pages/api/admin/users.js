@@ -1,14 +1,23 @@
-import { getSession } from "next-auth/client";
 import { connectToDatabase } from "../../../util/mongodb";
 import { ObjectId } from "bson";
 import bcrypt from "bcryptjs";
+import { withAdmin } from "../../../middleware/auth";
+import { validateAndConvertObjectId, setSecurityHeaders } from "../../../util/security";
+import { validateRegisterData, sanitizeObject, sanitizeMongoQuery, validateEmail, validateUsername, validateName } from "../../../util/validation";
+import { checkRateLimit } from "../../../util/rateLimiter";
 
-export default async (req, res) => {
+async function handler(req, res) {
+    // Aplicar rate limiting
+    const canContinue = await checkRateLimit(req, res);
+    if (!canContinue) {
+        return; // Ya se envió respuesta 429
+    }
+
+    // Agregar headers de seguridad
+    setSecurityHeaders(res);
+
     try {
-        const session = await getSession({ req });
-        if (!session || !session.admin) {
-            return res.status(401).json({ message: "Unauthorized" });
-        }
+        const session = req.session; // Ya viene del middleware withAdmin
 
         const { db } = await connectToDatabase();
 
@@ -30,20 +39,27 @@ export default async (req, res) => {
 
         // POST - Crear nuevo usuario
         if (req.method === "POST") {
-            const { name, username, email, password, isAdmin } = req.body;
-
-            if (!name || !username || !email || !password) {
-                return res.status(400).json({ message: "Todos los campos son requeridos" });
+            // Sanitizar y validar datos
+            const sanitizedData = sanitizeObject(req.body);
+            const validation = validateRegisterData(sanitizedData);
+            
+            if (!validation.isValid) {
+                return res.status(400).json({
+                    message: validation.errors[0] || "Datos inválidos",
+                    errors: validation.errors,
+                });
             }
 
-            if (password.length < 6) {
-                return res.status(400).json({ message: "La contraseña debe tener al menos 6 caracteres" });
-            }
+            const { name, username, email, password, isAdmin } = sanitizedData;
 
-            // Verificar si el usuario ya existe
-            const existingUser = await db.collection("users").findOne({
-                $or: [{ username: username }, { email: email }],
+            // Verificar si el usuario ya existe (con query sanitizado)
+            const sanitizedUsername = sanitizeObject({ username }).username;
+            const sanitizedEmail = sanitizeObject({ email }).email;
+            const query = sanitizeMongoQuery({
+                $or: [{ username: sanitizedUsername }, { email: sanitizedEmail }],
             });
+            
+            const existingUser = await db.collection("users").findOne(query);
 
             if (existingUser) {
                 if (existingUser.username === username) {
@@ -86,28 +102,53 @@ export default async (req, res) => {
 
         // PUT - Actualizar usuario
         if (req.method === "PUT") {
-            const { _id, name, username, email, password, isAdmin } = req.body;
-
-            if (!_id) {
-                return res.status(400).json({ message: "ID de usuario requerido" });
+            // Validar ObjectId
+            let userId;
+            try {
+                userId = validateAndConvertObjectId(req.body._id, "ID de usuario");
+            } catch (error) {
+                return res.status(400).json({ message: error.message });
             }
 
+            // Sanitizar datos
+            const sanitizedData = sanitizeObject(req.body);
+            const { name, username, email, password, isAdmin } = sanitizedData;
+
             // Obtener el usuario actual para obtener el email
-            const currentUser = await db.collection("users").findOne({ _id: ObjectId(_id) });
+            const currentUser = await db.collection("users").findOne({ _id: userId });
             if (!currentUser) {
                 return res.status(404).json({ message: "Usuario no encontrado" });
             }
 
             const updateData = {};
-            if (name) updateData.name = name;
-            if (username) updateData.username = username;
+            
+            // Validar y actualizar nombre
+            if (name) {
+                if (!validateName(name)) {
+                    return res.status(400).json({ message: "El nombre no es válido" });
+                }
+                updateData.name = sanitizeObject({ name }).name;
+            }
+            
+            // Validar y actualizar username
+            if (username) {
+                if (!validateUsername(username)) {
+                    return res.status(400).json({ message: "El nombre de usuario no es válido" });
+                }
+                updateData.username = sanitizeObject({ username }).username;
+            }
+            
             const newEmail = email || currentUser.email;
             if (email && email !== currentUser.email) {
-                updateData.email = email;
+                if (!validateEmail(email)) {
+                    return res.status(400).json({ message: "El correo electrónico no es válido" });
+                }
+                updateData.email = sanitizeObject({ email }).email;
             }
+            
             if (password) {
-                if (password.length < 6) {
-                    return res.status(400).json({ message: "La contraseña debe tener al menos 6 caracteres" });
+                if (password.length < 8) {
+                    return res.status(400).json({ message: "La contraseña debe tener al menos 8 caracteres" });
                 }
                 updateData.password = await bcrypt.hash(password, 10);
             }
@@ -116,13 +157,15 @@ export default async (req, res) => {
 
             // Verificar si el username o email ya están en uso por otro usuario
             if (username || email) {
-                const existingUser = await db.collection("users").findOne({
-                    _id: { $ne: ObjectId(_id) },
+                const query = sanitizeMongoQuery({
+                    _id: { $ne: userId },
                     $or: [
-                        ...(username ? [{ username }] : []),
-                        ...(email ? [{ email }] : []),
+                        ...(username ? [{ username: sanitizeObject({ username }).username }] : []),
+                        ...(email ? [{ email: sanitizeObject({ email }).email }] : []),
                     ],
                 });
+                
+                const existingUser = await db.collection("users").findOne(query);
 
                 if (existingUser) {
                     if (existingUser.username === username) {
@@ -135,7 +178,7 @@ export default async (req, res) => {
             }
 
             const result = await db.collection("users").updateOne(
-                { _id: ObjectId(_id) },
+                { _id: userId },
                 { $set: updateData }
             );
 
@@ -183,19 +226,21 @@ export default async (req, res) => {
 
         // DELETE - Eliminar usuario
         if (req.method === "DELETE") {
-            const { _id } = req.body;
-
-            if (!_id) {
-                return res.status(400).json({ message: "ID de usuario requerido" });
+            // Validar ObjectId
+            let userId;
+            try {
+                userId = validateAndConvertObjectId(req.body._id, "ID de usuario");
+            } catch (error) {
+                return res.status(400).json({ message: error.message });
             }
 
             // No permitir eliminar al propio administrador
-            const user = await db.collection("users").findOne({ _id: ObjectId(_id) });
+            const user = await db.collection("users").findOne({ _id: userId });
             if (user && user.email === session.user.email) {
                 return res.status(400).json({ message: "No puedes eliminar tu propio usuario" });
             }
 
-            const result = await db.collection("users").deleteOne({ _id: ObjectId(_id) });
+            const result = await db.collection("users").deleteOne({ _id: userId });
 
             if (result.deletedCount === 0) {
                 return res.status(404).json({ message: "Usuario no encontrado" });
@@ -212,7 +257,9 @@ export default async (req, res) => {
 
         return res.status(405).json({ message: "Método no permitido" });
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({ message: "Internal Server Error" });
+        console.error("Error en API de usuarios:", err);
+        return res.status(500).json({ message: "Error interno del servidor" });
     }
-};
+}
+
+export default withAdmin(handler);
