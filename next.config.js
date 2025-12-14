@@ -16,6 +16,7 @@ module.exports = withPWA({
     },
     // Importar el Service Worker personalizado después del generado
     // Esto carga el código de push notifications en el SW principal
+    // IMPORTANTE: El listener de push debe registrarse de forma síncrona en sw-custom.js
     importScripts: ['/sw-custom.js'],
   },
   env: {

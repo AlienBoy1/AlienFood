@@ -1,112 +1,9 @@
 // Service Worker personalizado con soporte para notificaciones push
 console.log("🚀 Service Worker personalizado (sw-custom.js) iniciando...");
 
-// Cargar workbox de forma segura
-try {
-  importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.1.5/workbox-sw.js');
-  console.log("✅ Workbox cargado correctamente");
-} catch (error) {
-  console.error('Error cargando Workbox, continuando sin él:', error);
-}
-
-// Configuración básica inmediata
-self.skipWaiting();
-self.clients.claim();
-
-// Log cuando el service worker se instala
-self.addEventListener('install', function(event) {
-  console.log('📦 Service Worker instalado');
-  // Forzar activación inmediata
-  self.skipWaiting();
-});
-
-// Log cuando el service worker se activa
-self.addEventListener('activate', function(event) {
-  console.log('🔧 Service Worker activado');
-  event.waitUntil(
-    self.clients.claim().then(() => {
-      console.log('✅ Service Worker tomó control de todos los clientes');
-      // Notificar a los clientes que el service worker está listo
-      return self.clients.matchAll().then(clients => {
-        clients.forEach(client => {
-          try {
-            client.postMessage({ type: 'SW_READY' });
-          } catch (e) {
-            // Ignorar errores al enviar mensaje
-          }
-        });
-      });
-    })
-  );
-});
-
-// CRÍTICO: Interceptar todas las peticiones para manejar offline
-// Esto debe estar ANTES de la configuración de Workbox para que tenga prioridad
-self.addEventListener('fetch', function(event) {
-  // Solo manejar peticiones de navegación (páginas HTML)
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          // Si la respuesta es exitosa, cachearla y devolverla
-          if (response && response.status === 200) {
-            const responseClone = response.clone();
-            caches.open('pages').then(cache => {
-              cache.put(event.request, responseClone).catch(e => {
-                console.warn('Error cacheando página:', e);
-              });
-            }).catch(e => {
-              console.warn('Error abriendo cache:', e);
-            });
-            return response;
-          }
-          // Si la respuesta no es exitosa, intentar cache
-          return caches.match(event.request).then(cachedResponse => {
-            return cachedResponse || response;
-          });
-        })
-        .catch(() => {
-          // Si falla el fetch (offline), intentar obtener del cache
-          return caches.match(event.request).then(cachedResponse => {
-            if (cachedResponse) {
-              console.log('📴 Offline: Usando página desde cache:', event.request.url);
-              return cachedResponse;
-            }
-            // Si no hay cache de esta página específica, intentar la página principal
-            return caches.match('/').then(fallbackResponse => {
-              if (fallbackResponse) {
-                console.log('📴 Offline: Usando página principal desde cache');
-                return fallbackResponse;
-              }
-              // Último recurso: respuesta offline básica
-              return new Response('Offline - No hay conexión', {
-                status: 503,
-                statusText: 'Service Unavailable',
-                headers: { 'Content-Type': 'text/html; charset=utf-8' }
-              });
-            });
-          });
-        })
-    );
-  }
-  // Para otras peticiones (API, assets, etc.), dejar que Workbox las maneje
-});
-
-// CRÍTICO: Registrar el listener de push INMEDIATAMENTE al cargar el script
-// Esto debe hacerse ANTES de cualquier otra cosa para asegurar que esté listo
-console.log("📋 Service Worker personalizado cargado - Registrando listener de push...");
-console.log("Service Worker scope:", self.registration?.scope || "N/A");
-console.log("Service Worker state:", self.registration?.active?.state || "N/A");
-
-// Verificar que el Service Worker tenga acceso a PushManager
-if (self.registration && self.registration.pushManager) {
-  console.log("✅ PushManager disponible en el Service Worker");
-} else {
-  console.warn("⚠️ PushManager NO disponible en el Service Worker");
-}
-
-// REGISTRAR EL LISTENER DE PUSH INMEDIATAMENTE - ANTES DE CUALQUIER OTRA COSA
-// Esto es crítico porque si el listener no está registrado cuando llega el evento push, se perderá
+// CRÍTICO: Registrar el listener de push LO PRIMERO, antes de cualquier otra cosa
+// Esto es absolutamente necesario porque si el listener no está registrado cuando llega el evento, se perderá
+console.log("🔔 [CRÍTICO] Registrando listener de push INMEDIATAMENTE...");
 self.addEventListener("push", async function (event) {
   console.log("🔔 ========== PUSH EVENT RECIBIDO ==========");
   console.log("Service Worker activo:", self.registration.active ? "Sí" : "No");
@@ -295,6 +192,98 @@ self.addEventListener("push", async function (event) {
       }
     })()
   );
+});
+console.log("✅ Listener de push registrado correctamente");
+
+// Cargar workbox de forma segura
+try {
+  importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.1.5/workbox-sw.js');
+  console.log("✅ Workbox cargado correctamente");
+} catch (error) {
+  console.error('Error cargando Workbox, continuando sin él:', error);
+}
+
+// Configuración básica inmediata
+self.skipWaiting();
+self.clients.claim();
+
+// Log cuando el service worker se instala
+self.addEventListener('install', function(event) {
+  console.log('📦 Service Worker instalado');
+  // Forzar activación inmediata
+  self.skipWaiting();
+});
+
+// Log cuando el service worker se activa
+self.addEventListener('activate', function(event) {
+  console.log('🔧 Service Worker activado');
+  event.waitUntil(
+    self.clients.claim().then(() => {
+      console.log('✅ Service Worker tomó control de todos los clientes');
+      // Notificar a los clientes que el service worker está listo
+      return self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+          try {
+            client.postMessage({ type: 'SW_READY' });
+          } catch (e) {
+            // Ignorar errores al enviar mensaje
+          }
+        });
+      });
+    })
+  );
+});
+
+// CRÍTICO: Interceptar todas las peticiones para manejar offline
+// Esto debe estar ANTES de la configuración de Workbox para que tenga prioridad
+self.addEventListener('fetch', function(event) {
+  // Solo manejar peticiones de navegación (páginas HTML)
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          // Si la respuesta es exitosa, cachearla y devolverla
+          if (response && response.status === 200) {
+            const responseClone = response.clone();
+            caches.open('pages').then(cache => {
+              cache.put(event.request, responseClone).catch(e => {
+                console.warn('Error cacheando página:', e);
+              });
+            }).catch(e => {
+              console.warn('Error abriendo cache:', e);
+            });
+            return response;
+          }
+          // Si la respuesta no es exitosa, intentar cache
+          return caches.match(event.request).then(cachedResponse => {
+            return cachedResponse || response;
+          });
+        })
+        .catch(() => {
+          // Si falla el fetch (offline), intentar obtener del cache
+          return caches.match(event.request).then(cachedResponse => {
+            if (cachedResponse) {
+              console.log('📴 Offline: Usando página desde cache:', event.request.url);
+              return cachedResponse;
+            }
+            // Si no hay cache de esta página específica, intentar la página principal
+            return caches.match('/').then(fallbackResponse => {
+              if (fallbackResponse) {
+                console.log('📴 Offline: Usando página principal desde cache');
+                return fallbackResponse;
+              }
+              // Último recurso: respuesta offline básica
+              return new Response('Offline - No hay conexión', {
+                status: 503,
+                statusText: 'Service Unavailable',
+                headers: { 'Content-Type': 'text/html; charset=utf-8' }
+              });
+            });
+          });
+        })
+    );
+  }
+  // Para otras peticiones (API, assets, etc.), dejar que Workbox las maneje
 });
 
 // CRÍTICO: Interceptar peticiones de navegación para manejar offline
