@@ -8,7 +8,7 @@ function About() {
   return (
     <>
       <Head>
-        <title>Alien Food | Acerca de</title>
+        <title>TUNEL DEL TIEMPO | Acerca de</title>
       </Head>
       <div className="heightFix px-3 sm:px-6">
         <div className="max-w-screen-xl mx-auto md:py-20 py-12 pb-20">
@@ -32,8 +32,8 @@ function About() {
               <div className="flex-grow ml-auto ">
                 <Fade bottom>
                   <p>
-                    Este es un sitio web de pedidos de comida para el restaurante Alien Food construido
-                    usando
+                    TUNEL DEL TIEMPO es una tienda en línea especializada en figuras de acción, juguetes retro, 
+                    consolas clásicas y coleccionables construida usando
                     <span className="link text-primary-light underline mx-1">
                       <Link href="https://nextjs.org/"> Next.js,</Link>
                     </span>

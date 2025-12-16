@@ -43,46 +43,34 @@ function Layout({ children, admin, auth }) {
                     name="viewport"
                     content="width=device-width,initial-scale=1.0,minimum-scale=1.0"
                 />
-                <title>Alien Food</title>
+                <title>TUNEL DEL TIEMPO - Figuras de Acción y Coleccionables</title>
                 <meta
                     name="description"
-                    content="Sitio web de pedidos de comida para el restaurante Alien Food construido con 💗 🔥 por Piyush Sati"
+                    content="Tienda de figuras de acción, juguetes retro, consolas clásicas y coleccionables de los 80s, 90s y 2000s. Marvel, DC, Dragon Ball Super y más."
                 />
-                <link
-                    rel="apple-touch-icon"
-                    sizes="180x180"
-                    href="/img/favicons/apple-touch-icon.png"
-                />
-                <link
-                    rel="icon"
-                    type="image/png"
-                    sizes="32x32"
-                    href="/img/favicons/favicon-32x32.png"
-                />
-                <link
-                    rel="icon"
-                    type="image/png"
-                    sizes="16x16"
-                    href="/img/favicons/favicon-16x16.png"
-                />
+                {/* Favicon SVG tiene prioridad - funciona en navegadores modernos */}
+                <link rel="icon" type="image/svg+xml" href="/img/favicons/favicon.svg" />
+                {/* Fallbacks para navegadores antiguos */}
+                <link rel="icon" type="image/png" sizes="32x32" href="/img/favicons/favicon.svg" />
+                <link rel="icon" type="image/png" sizes="16x16" href="/img/favicons/favicon.svg" />
+                <link rel="shortcut icon" href="/img/favicons/favicon.svg" />
+                {/* Apple Touch Icon */}
+                <link rel="apple-touch-icon" sizes="180x180" href="/img/tunel-logo-simple.svg" />
+                <link rel="apple-touch-icon" href="/img/tunel-logo-simple.svg" />
+                {/* Manifest y otros */}
                 <link rel="manifest" href="/api/manifest" />
-                <link
-                    rel="mask-icon"
-                    href="/img/favicons/safari-pinned-tab.svg"
-                    color="#5bbad5"
-                />
-                <link rel="shortcut icon" href="/img/favicons/favicon.ico" />
+                <link rel="mask-icon" href="/img/favicons/favicon.svg" color="#6366f1" />
                 <meta name="msapplication-TileColor" content="#da532c" />
                 <meta
                     name="msapplication-config"
                     content="/img/favicons/browserconfig.xml"
                 />
-                <meta name="theme-color" content="#ffffff" />
+                <meta name="theme-color" content="#6366f1" />
             </Head>
             <div className="layout">
                 {loading ? (
                     <div className="fixed inset-0 flex items-center justify-center bg-white z-50 loader">
-                        <Loader type="TailSpin" color="#ab3c2a" />
+                        <Loader type="TailSpin" color="#6366f1" />
                     </div>
                 ) : admin ? (
                     session && session?.admin ? (
@@ -93,7 +81,7 @@ function Layout({ children, admin, auth }) {
                         </>
                     ) : (
                         <div className="flex items-center justify-center heightFix">
-                            <Loader type="TailSpin" color="#ab3c2a" />
+                            <Loader type="TailSpin" color="#6366f1" />
                         </div>
                     )
                 ) : auth ? (
@@ -106,7 +94,7 @@ function Layout({ children, admin, auth }) {
                         </>
                     ) : (
                         <div className="flex items-center justify-center heightFix">
-                            <Loader type="TailSpin" color="#ab3c2a" />
+                            <Loader type="TailSpin" color="#6366f1" />
                         </div>
                     )
                 ) : (

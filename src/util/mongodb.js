@@ -1,7 +1,7 @@
 import { MongoClient } from "mongodb";
 
 const MONGODB_URI = process.env.MONGODB_URI;
-const MONGODB_DB = process.env.MONGODB_DB;
+const MONGODB_DB = process.env.MONGODB_DB || 'zinger'; // Usar 'zinger' por defecto
 
 /**
  * Global is used here to maintain a cached connection across hot reloads
@@ -24,13 +24,7 @@ export async function connectToDatabase() {
     );
   }
 
-  if (!MONGODB_DB) {
-    throw new Error(
-      "Please define the MONGODB_DB environment variable. " +
-      "For local development, add it to .env.local. " +
-      "For production, add it to Vercel environment variables."
-    );
-  }
+  // MONGODB_DB ahora tiene un valor por defecto 'zinger', pero aún validamos que exista MONGODB_URI
 
   if (cached.conn) {
     return cached.conn;

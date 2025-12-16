@@ -49,7 +49,7 @@ function Dishes(props) {
   return (
     <>
       <Head>
-        <title>Alien Food | Platillos</title>
+        <title>TUNEL DEL TIEMPO | Productos</title>
       </Head>
       <div className="heightFixAdmin px-6 lg:py-20 sm:py-16 py-12">
         <div className="mx-auto max-w-screen-xl">
@@ -57,14 +57,14 @@ function Dishes(props) {
             <BackButton />
           </div>
           <h2 className="lg:text-4xl sm:text-3xl text-2xl  font-bold mb-6 ">
-            Platillos
+            Productos
           </h2>
           <div className="py-2">
             <input
               className="p-2 pl-6 h-full w-full outline-none cursor-pointer sm:text-base text-sm rounded-lg bg-gray-200"
               type="text"
               value={searchTerm}
-              placeholder="Buscar un platillo"
+              placeholder="Buscar un producto"
               onChange={searchDish}
             />
           </div>

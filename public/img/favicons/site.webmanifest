@@ -1,8 +1,14 @@
 {
-    "name": "Alien Food",
-    "short_name": "Alien Food",
-    "description": "Food ordering website for Alien Food restaurant build with 💗 🔥 by Piyush Sati",
+    "name": "TUNEL DEL TIEMPO",
+    "short_name": "Túnel",
+    "description": "Tienda de figuras de acción, juguetes retro, consolas y coleccionables de los 80s, 90s y 2000s",
     "icons": [
+        {
+            "src": "/img/favicons/favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        },
         {
             "src": "/img/favicons/android-chrome-192x192.png",
             "sizes": "192x192",
@@ -15,7 +21,8 @@
         }
     ],
     "start_url": "/",
-    "theme_color": "#ffffff",
-    "background_color": "#ffffff",
-    "display": "standalone"
+    "theme_color": "#6366f1",
+    "background_color": "#1e1b4b",
+    "display": "standalone",
+    "orientation": "portrait-primary"
 }

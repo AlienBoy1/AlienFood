@@ -21,8 +21,8 @@ function Header() {
       <div className="flex items-center w-full max-w-screen-xl py-2 xl:space-x-16 lg:space-x-12  space-x-7  mx-auto">
         <div className="flex items-center flex-1">
           <Image
-            src="/img/AlienFood.svg"
-            alt="Alien Food"
+            src="/img/tunel-logo-simple.svg"
+            alt="TUNEL DEL TIEMPO"
             className="cursor-pointer"
             width={140}
             objectFit="contain"
@@ -63,7 +63,7 @@ function Header() {
             <Skeleton circle={true} width={40} height={40} />
           )}
           <span className="link" onClick={() => router.push("/orders")}>
-            Pedidos
+            Mis Pedidos
           </span>
           <span className="link" onClick={() => router.push("/about")}>
             Acerca de

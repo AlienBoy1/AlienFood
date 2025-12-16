@@ -19,8 +19,8 @@ export default async function handler(req, res) {
     console.error('Error reading manifest:', error);
     // Fallback: devolver un manifest básico
     return res.status(200).json({
-      name: "Alien Food",
-      short_name: "Alien Food",
+      name: "TUNEL DEL TIEMPO",
+      short_name: "Túnel",
       icons: [
         {
           src: "/img/favicons/android-chrome-192x192.png",
@@ -34,7 +34,9 @@ export default async function handler(req, res) {
         }
       ],
       start_url: "/",
-      display: "standalone"
+      display: "standalone",
+      theme_color: "#6366f1",
+      background_color: "#1e1b4b"
     });
   }
 }

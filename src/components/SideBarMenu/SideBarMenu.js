@@ -30,12 +30,13 @@ function SideBarMenu({ closeSideBar }) {
     <div className="relative h-full w-full sideBarMenu bg-white dark:bg-gray-800 px-8 py-6 font-medium md:hidden text-gray-900 dark:text-gray-100">
       <div>
         <Image
-          src="/img/AlienFood.svg"
-          alt="Alien Food"
+          src="/img/tunel-logo-simple.svg"
+          alt="TUNEL DEL TIEMPO"
           className="cursor-pointer"
           width={70}
           objectFit="contain"
           height={30}
+          onClick={() => sideBarClickHandler("/")}
         />
       </div>
       <div className=" h-0.5 my-4 w-full bg-gray-100"></div>

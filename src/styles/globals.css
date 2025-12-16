@@ -10,8 +10,11 @@
 
 /* Variables CSS para temas dinámicos */
 :root {
-  --color-primary: #ab3c2a;
-  --color-primary-dark: #792a1e;
+  --color-primary: #6366f1;
+  --color-primary-dark: #4f46e5;
+  --color-primary-light: #818cf8;
+  --color-secondary: #8b5cf6;
+  --color-accent: #ec4899;
   --font-size-base: 16px;
   --animation-duration: 0.3s;
 }
@@ -20,30 +23,43 @@
 @layer components {
   .link {
     @apply cursor-pointer;
-    color: var(--color-primary, #ab3c2a);
+    color: var(--color-primary, #6366f1);
   }
   .link:hover,
   .link:active {
-    color: var(--color-primary, #ab3c2a);
+    color: var(--color-primary-dark, #4f46e5);
   }
   
   .button {
-    @apply cursor-pointer rounded text-center p-2 text-sm text-white focus:outline-none focus:ring-2 transition-all;
-    background: linear-gradient(to bottom, var(--color-primary, #ab3c2a), var(--color-primary-dark, #792a1e));
-    border-color: var(--color-primary, #ab3c2a);
+    @apply cursor-pointer rounded-lg text-center p-2 text-sm text-white focus:outline-none focus:ring-2 transition-all duration-300;
+    background: linear-gradient(to right, var(--color-primary, #6366f1), var(--color-secondary, #8b5cf6));
+    border-color: var(--color-primary, #6366f1);
     border-width: 1px;
+    box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
+  }
+  .button:hover {
+    background: linear-gradient(to right, var(--color-primary-dark, #4f46e5), var(--color-primary, #6366f1));
+    box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+    transform: translateY(-1px);
   }
   .button:focus {
-    ring-color: var(--color-primary-dark, #792a1e);
+    ring-color: var(--color-primary-dark, #4f46e5);
   }
   .button:active {
-    background: linear-gradient(to bottom, var(--color-primary-dark, #792a1e), var(--color-primary-dark, #792a1e));
+    transform: translateY(0);
+    box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
   }
   
   .button-ghost {
-    @apply cursor-pointer rounded text-center p-2 text-sm focus:outline-none border-2 hover:shadow-md focus:shadow-md active:shadow-md transition-all;
-    color: var(--color-primary, #ab3c2a);
-    border-color: var(--color-primary, #ab3c2a);
+    @apply cursor-pointer rounded-lg text-center p-2 text-sm focus:outline-none border-2 hover:shadow-lg focus:shadow-lg active:shadow-md transition-all duration-300;
+    color: var(--color-primary, #6366f1);
+    border-color: var(--color-primary, #6366f1);
+    background: transparent;
+  }
+  .button-ghost:hover {
+    background: var(--color-primary, #6366f1);
+    color: white;
+    transform: translateY(-1px);
   }
   
   .button-red {
@@ -55,12 +71,14 @@
   }
   
   .dashboard-link {
-    @apply cursor-pointer rounded border px-4 py-1 hover:text-white transition-all duration-200 text-sm;
-    color: var(--color-primary, #ab3c2a);
-    border-color: var(--color-primary, #ab3c2a);
+    @apply cursor-pointer rounded-lg border px-4 py-1 hover:text-white transition-all duration-300 text-sm;
+    color: var(--color-primary, #6366f1);
+    border-color: var(--color-primary, #6366f1);
   }
   .dashboard-link:hover {
-    background-color: var(--color-primary, #ab3c2a);
+    background: linear-gradient(to right, var(--color-primary, #6366f1), var(--color-secondary, #8b5cf6));
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
   }
   
   .heading {
@@ -69,29 +87,113 @@
   
   /* Clases para usar colores primarios dinámicos */
   .text-primary-light {
-    color: var(--color-primary, #ab3c2a) !important;
+    color: var(--color-primary, #6366f1) !important;
   }
   
   .bg-primary-light {
-    background-color: var(--color-primary, #ab3c2a) !important;
+    background: linear-gradient(to right, var(--color-primary, #6366f1), var(--color-secondary, #8b5cf6)) !important;
   }
   
   .border-primary-light {
-    border-color: var(--color-primary, #ab3c2a) !important;
+    border-color: var(--color-primary, #6366f1) !important;
   }
   
   .bg-primary-dark {
-    background-color: var(--color-primary-dark, #792a1e) !important;
+    background-color: var(--color-primary-dark, #4f46e5) !important;
   }
   
   .from-primary-light {
-    --tw-gradient-from: var(--color-primary, #ab3c2a);
-    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(171, 60, 42, 0));
+    --tw-gradient-from: var(--color-primary, #6366f1);
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(99, 102, 241, 0));
   }
   
   .to-primary-dark {
-    --tw-gradient-to: var(--color-primary-dark, #792a1e);
+    --tw-gradient-to: var(--color-primary-dark, #4f46e5);
   }
+}
+
+/* Animaciones personalizadas */
+@keyframes gradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 40px rgba(99, 102, 241, 0.8);
+  }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 3s ease infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Mejoras de scrollbar */
+.hideScrollBar::-webkit-scrollbar {
+  display: none;
+}
+
+.hideScrollBar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Efectos hover mejorados */
+.button {
+  position: relative;
+  overflow: hidden;
+}
+
+.button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Transiciones suaves */
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
 }
 
 /* Dark mode styles */
@@ -116,12 +218,13 @@
 
 .heading::after {
     display: block;
-    height: 2px;
-    background-color: var(--color-primary, #ab3c2a);
+    height: 3px;
+    background: linear-gradient(to right, var(--color-primary, #6366f1), var(--color-secondary, #8b5cf6), var(--color-accent, #ec4899));
     content: " ";
     width: 100px;
     margin: 0 auto;
-    margin-top: 30px;
+    margin-top: 20px;
+    border-radius: 2px;
 }
 html,
 body {
@@ -184,8 +287,7 @@ body {
 }
 
 .layout .Toastify__progress-bar--default {
-  background: var(--color-primary, #ab3c2a);
-  background: linear-gradient(var(--color-primary, #ab3c2a), var(--color-primary-dark, #792a1e)) !important;
+  background: linear-gradient(to right, var(--color-primary, #6366f1), var(--color-secondary, #8b5cf6), var(--color-accent, #ec4899)) !important;
 }
 
 @media only screen and (max-width: 780px) {

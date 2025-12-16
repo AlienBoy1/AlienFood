@@ -53,14 +53,14 @@ function Login() {
   return (
     <>
       <Head>
-        <title>Alien Food | Iniciar Sesión</title>
+        <title>TUNEL DEL TIEMPO | Iniciar Sesión</title>
       </Head>
-      <div className="heightFix flex items-center justify-center bg-gray-100 dark:bg-gray-900 px-3 sm:px-6">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
+      <div className="heightFix flex items-center justify-center bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-3 sm:px-6">
+        <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 border border-gray-200 dark:border-gray-700">
           <div className="text-center mb-8">
             <Image
-              src="/img/AlienFood.svg"
-              alt="Alien Food"
+              src="/img/tunel-logo-simple.svg"
+              alt="TUNEL DEL TIEMPO"
               width={120}
               height={60}
               objectFit="contain"

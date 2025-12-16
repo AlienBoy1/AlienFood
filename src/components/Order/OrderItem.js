@@ -24,6 +24,7 @@ function OrderItem({ item }) {
                     height={120}
                     alt=""
                     objectFit="contain"
+                    unoptimized={item?.image?.startsWith('http')}
                 />
             </div>
         </div>

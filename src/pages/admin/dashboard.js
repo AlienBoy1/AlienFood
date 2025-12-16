@@ -25,22 +25,22 @@ function Dashboard() {
   return (
     <>
       <Head>
-        <title>Alien Food | Panel de Control</title>
+        <title>TUNEL DEL TIEMPO | Panel de Control</title>
       </Head>
       <div className="heightFixAdmin bg-gray-100 dark:bg-gray-900 py-6 sm:py-10 px-3 sm:px-6">
-        <div className="max-w-screen-xl mx-auto bg-white  shadow rounded-md my-6">
-          <div className="flex flex-col md:p-8  p-6  bg-white gap-6">
+        <div className="max-w-screen-xl mx-auto bg-white dark:bg-gray-800 shadow-lg rounded-xl my-6">
+          <div className="flex flex-col md:p-8  p-6  bg-white dark:bg-gray-800 gap-6">
             <div className="flex items-center gap-4 mb-2">
               <BackButton />
             </div>
-            <h1 className="sm:text-2xl text-xl  font-semibold border-b-2 border-gray-200 pb-4 text-gray-700">
+            <h1 className="sm:text-2xl text-xl  font-semibold border-b-2 border-gray-200 dark:border-gray-700 pb-4 text-gray-700 dark:text-gray-200">
               Panel de Control
             </h1>
             <div className="flex gap-4 sm:gap-6 lg:gap-8  text-primary-light font-medium flex-wrap sm:text-base text-sm">
               <Link href="/admin/dishes">
                 <div className="dashboard-link flex items-center gap-1">
                   <ArchiveIcon className="w-4" />
-                  <span>Platillos</span>
+                  <span>Productos</span>
                 </div>
               </Link>
               <Link href="/admin/users">
@@ -52,7 +52,7 @@ function Dashboard() {
               <Link href="/admin/add-dish">
                 <div className="dashboard-link flex items-center gap-1">
                   <PlusIcon className="w-4" />
-                  <span>Agregar Platillo</span>
+                  <span>Agregar Producto</span>
                 </div>
               </Link>
               <Link href="/admin/add-category">

@@ -421,21 +421,21 @@ function MyApp({ Component, pageProps }) {
             console.error("Error cacheando usuarios:", error);
           }
           
-          // Cachear platillos
+          // Cachear productos
           try {
             const dishesResponse = await fetch("/api/dishes");
             if (dishesResponse.ok) {
               const dishes = await dishesResponse.json();
               await indexedDBService.saveDishes(dishes);
-              console.log("✅ Platillos cacheados:", dishes.length);
+              console.log("✅ Productos cacheados:", dishes.length);
               
-              // Cachear imágenes de platillos
+              // Cachear imágenes de productos
               try {
                 const { cacheAllDishImages } = await import("../util/imageCache");
                 await cacheAllDishImages(dishes);
-                console.log("✅ Imágenes de platillos cacheadas");
+                console.log("✅ Imágenes de productos cacheadas");
               } catch (imageError) {
-                console.error("Error cacheando imágenes de platillos:", imageError);
+                console.error("Error cacheando imágenes de productos:", imageError);
               }
             }
           } catch (error) {

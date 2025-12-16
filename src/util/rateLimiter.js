@@ -175,7 +175,8 @@ export async function checkRateLimit(req, res, limiter = apiRateLimiter) {
 
   return new Promise((resolve) => {
     try {
-      const handler = limiter();
+      // limiter ya es una función middleware, no necesita ser llamada
+      const handler = typeof limiter === 'function' ? limiter : apiRateLimiter;
       handler(req, res, () => {
         // Si la respuesta ya fue enviada (429), fue bloqueada
         const wasBlocked = res.headersSent && res.statusCode === 429;

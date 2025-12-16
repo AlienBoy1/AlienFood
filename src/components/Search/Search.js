@@ -87,6 +87,7 @@ function Search() {
                                                 src={image}
                                                 height={40}
                                                 width={40}
+                                                unoptimized={image?.startsWith('http')}
                                                 alt=""
                                                 objectFit="contain"
                                             />

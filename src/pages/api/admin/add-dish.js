@@ -43,7 +43,7 @@ async function handler(req, res) {
             });
         }
 
-        // Crear el platillo con datos validados
+        // Crear el producto con datos validados
         const dish = {
             ...validation.data,
             price: validation.data.price,
@@ -54,11 +54,11 @@ async function handler(req, res) {
         const result = await db.collection("dishes").insertOne(dish);
         
         return res.status(201).json({
-            message: "Platillo agregado exitosamente",
+            message: "Producto agregado exitosamente",
             dishId: result.insertedId,
         });
     } catch (err) {
-        console.error("Error agregando platillo:", err);
+        console.error("Error agregando producto:", err);
         return res.status(500).json({
             message: "Error interno del servidor",
         });

@@ -1,161 +1,134 @@
-<div align="left">
-            <a href="https://paypal.me/piyushsati311999" target="_blank" style="display: inline-block;">
-                <img
-                    src="https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat-square&logo=paypal" 
-                    align="left"
-                />
-            </a>
-            <a href="https://www.buymeacoffee.com/piyushsati" target="_blank" style="display: inline-block;">
-                <img
-                    src="https://img.shields.io/badge/Donate-Buy%20Me%20A%20Coffee-orange.svg?style=flat-square&logo=buymeacoffee" 
-                    align="left"
-                />
-            </a>
-</div>  
-<br/>  
+# TUNEL DEL TIEMPO
 
+Tienda en línea especializada en figuras de acción, juguetes retro, consolas clásicas y coleccionables de los 80s, 90s y 2000s.
 
+![Logo](public/img/tunel-logo.svg)
 
-# Zinger
+## Descripción
 
-Food ordering website for Zinger restaurant built using Next.js, TailwindCSS, Redux, Mongodb
+TUNEL DEL TIEMPO es una Progressive Web App (PWA) completa que permite a los usuarios explorar y comprar:
 
-![Logo](https://zinger.vercel.app/_next/image?url=%2Fimg%2FZinger.svg&w=128&q=75)
+- **Figuras de Acción**: Marvel, DC, Dragon Ball Super, y más
+- **Juguetes Retro**: Carritos de Batman, figuras clásicas
+- **Consolas Retro**: Mini consolas originales de los 80s, 90s y 2000s
+- **Discos de Música**: CDs y vinilos de los 80s, 90s y 2000s
+- **Discos de Video**: DVDs y VHS de éxitos clásicos
+- **Coleccionables**: Artículos únicos y exclusivos
 
-<img src="https://zinger.vercel.app/img/favicons/apple-touch-icon.png" height="100" alt="" />
+## Características
 
+- ✅ **PWA Completa**: Funciona offline, instalable, notificaciones push
+- ✅ **Diseño Moderno**: Interfaz atractiva con tema oscuro/claro
+- ✅ **Múltiples Categorías**: Organización por tipo de producto
+- ✅ **Subida de Imágenes**: Sistema mejorado para agregar imágenes de productos
+- ✅ **Carrito de Compras**: Gestión completa de pedidos
+- ✅ **Panel de Administración**: Gestión de productos, categorías y pedidos
+- ✅ **Notificaciones Push**: Sistema completo de notificaciones
+- ✅ **Compatibilidad Multi-navegador**: Funciona en todos los navegadores modernos
 
-## Demo
+## Tecnologías
 
-https://zinger.vercel.app
+- **Frontend**: Next.js, React, Redux Toolkit, TailwindCSS
+- **Backend**: Next.js API Routes, MongoDB
+- **PWA**: next-pwa, Service Workers
+- **Notificaciones**: Web Push API
+- **Autenticación**: NextAuth.js
 
-
-## Screenshots
-
-![App Screenshot](https://i.ibb.co/8x3ZGnG/zinger.gif)
-
-  
-## Features
-
-- Responsive
-- Real Time and Dynamic
-- Progressive Web App (PWA)
-- Payment Gateway integration
--  Admin Dashboard with functionalities like adding products, deleting a product, updating products, adding a category, viewing users registered, updating order status, and canceling orders.
-- State management using Redux
-- Google authentication
-- Track order status real time
-- Cancel orders
-
-
-## Run Locally
-
-Clone the project (or copy the folder to your machine). This repository is now treated as a local project; remove any git remote if you want to disconnect from the original GitHub repo (see notes below).
-
-Go to the project directory
+## Instalación
 
 ```bash
-  cd Zinger
+# Instalar dependencias
+npm install
+
+# Configurar variables de entorno
+cp .env.example .env
+# Editar .env con tus credenciales de MongoDB y otras configuraciones
+
+# Inicializar categorías (opcional)
+node init-categories.js
+
+# Ejecutar en desarrollo
+npm run dev
+
+# Construir para producción
+npm run build
+npm start
 ```
 
-Install dependencies
+## Variables de Entorno
+
+```env
+MONGODB_URI=tu_uri_de_mongodb
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=tu_secret_key
+STRIPE_PUBLIC_KEY=tu_stripe_public_key
+VAPID_PUBLIC_KEY=tu_vapid_public_key
+VAPID_PRIVATE_KEY=tu_vapid_private_key
+VAPID_EMAIL=tu_email
+```
+
+## Estructura del Proyecto
+
+```
+├── public/
+│   ├── img/
+│   │   ├── tunel-logo.svg          # Logo principal
+│   │   └── favicons/               # Iconos PWA
+│   └── sw-custom.js                # Service Worker personalizado
+├── src/
+│   ├── components/                 # Componentes React
+│   ├── pages/                      # Páginas y API routes
+│   ├── util/                       # Utilidades
+│   └── styles/                     # Estilos globales
+└── init-categories.js              # Script para inicializar categorías
+```
+
+## Categorías Disponibles
+
+- Figuras Marvel
+- Figuras DC
+- Dragon Ball Super
+- Carritos Batman
+- Mini Consolas Retro
+- Discos Música 80s/90s/2000s
+- Discos Video 80s/90s/2000s
+- Figuras de Acción
+- Juguetes Retro
+- Coleccionables
+- Superhéroes
+- Anime
+- Videojuegos Retro
+- Accesorios
+
+## Características PWA
+
+- ✅ Instalable en dispositivos móviles y desktop
+- ✅ Funciona offline con cache inteligente
+- ✅ Notificaciones push funcionales
+- ✅ Compatible con todos los navegadores modernos
+- ✅ Service Worker optimizado
+
+## Desarrollo
 
 ```bash
-  npm install
+# Modo desarrollo
+npm run dev
+
+# Construir
+npm run build
+
+# Iniciar producción
+npm start
 ```
 
-Create a **.env.local** file inside project directory with fields given below.
+## Licencia
 
-```bash
-  # Authentication
-  GOOGLE_ID=
-  GOOGLE_SECRET=
+Este proyecto está bajo la Licencia MIT.
 
-  # Need to add this to... google cloud
-  # http://localhost:3000/api/auth/callback/google
+## Contacto
 
+Para más información, contacta al equipo de desarrollo.
 
-  NEXTAUTH_URL=http://localhost:3000
+---
 
-
-  HOST=http://localhost:3000
-
-
-  # Stripe
-  STRIPE_PUBLIC_KEY=
-  STRIPE_SECRET_KEY=
-
-
-  # Stripe Terminal/CLI
-  STRIPE_SIGNING_SECRET=
-
-  # Testing Webhook
-  # stripe listen --forward-to localhost:3000/api/webhook
-
-
-  # Mongodb Database
-  
-  # Your database name
-  MONGODB_DB=
-  # Add monogdb connection url 
-  MONGO_URI=
-  # Add mongodb connection url but with driver node.js and version 2.2.12 or later 
-  MONGODB_URI=
-  
-```
-
-Start the server
-
-```bash
-  npm run dev
-```
- 
-Admin Access 
-
-```
- To gain admin access, you need to add your email ID to the admin collection in MongoDB.
-
-Removing GitHub remote (optional):
-
-If this folder is still a git repository and you want to unlink it from its GitHub remote, run in PowerShell:
-
-```powershell
-git remote remove origin
-```
-
-This only removes the reference to the remote; it does not delete your local commits or files.
- After adding it, try logging in with the same email ID, and you should see the dashboard option.
-```
-![182356880-d13b94f1-2a21-4e4e-8d1a-bb4faca0e61d (1)](https://user-images.githubusercontent.com/69719134/235835845-66a9ba70-e8d3-47f3-a213-298fcf3d0b89.png)
-
-
-
-
-## Stripe Payment Gateway
-
-Test Stripe payment gateway with these card details.
-
-```
-  BRAND - VISA
-  CARD NUMBER - 4242424242424242
-  CVC - Any 3 digits
-  DATE - Any future date
-```
-
-See details: https://stripe.com/docs/testing
-  
-
-## Contributing
-
-Contributions are always welcome!
-
-  
-## License
-
-[MIT](https://choosealicense.com/licenses/mit/)
-
-<br/>
-<br/>
-
-<p align="center">If you liked the repository, show your  ❤️  by starring and forking it.</p>
-  
+**TUNEL DEL TIEMPO** - Revive tus mejores recuerdos 🚀

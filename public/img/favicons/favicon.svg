@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="tunnelFavicon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#8b5cf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fondo del túnel -->
+  <circle cx="50" cy="50" r="45" fill="url(#tunnelFavicon)" opacity="0.95"/>
+  
+  <!-- Anillos del túnel -->
+  <circle cx="50" cy="50" r="40" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.4"/>
+  <circle cx="50" cy="50" r="30" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.5"/>
+  <circle cx="50" cy="50" r="20" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.6"/>
+  <circle cx="50" cy="50" r="10" fill="none" stroke="#ffffff" stroke-width="1.5" opacity="0.7"/>
+  
+  <!-- Centro del túnel -->
+  <circle cx="50" cy="50" r="7" fill="#ffffff" opacity="0.9"/>
+  
+  <!-- Partículas de luz -->
+  <circle cx="35" cy="35" r="2" fill="#ffffff" opacity="0.7"/>
+  <circle cx="65" cy="35" r="2" fill="#ffffff" opacity="0.7"/>
+  <circle cx="35" cy="65" r="2" fill="#ffffff" opacity="0.7"/>
+  <circle cx="65" cy="65" r="2" fill="#ffffff" opacity="0.7"/>
+</svg>
+

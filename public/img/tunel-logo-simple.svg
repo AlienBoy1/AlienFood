@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="tunnelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#8b5cf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Túnel simplificado -->
+  <circle cx="100" cy="100" r="90" fill="url(#tunnelGrad)"/>
+  <circle cx="100" cy="100" r="70" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.5"/>
+  <circle cx="100" cy="100" r="50" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.6"/>
+  <circle cx="100" cy="100" r="30" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.7"/>
+  <circle cx="100" cy="100" r="15" fill="#ffffff" opacity="0.9"/>
+</svg>
+

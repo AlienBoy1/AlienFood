@@ -12,7 +12,7 @@ function Admin() {
   return (
     <>
       <Head>
-        <title>Alien Food | Panel de Administración</title>
+        <title>TUNEL DEL TIEMPO | Panel de Administración</title>
       </Head>
       <div className="heightFixAdmin px-6 flex items-center justify-center">
         <div className="max-w-screen-xs mx-auto lg:text-lg xs:text-base text-sm text-center font-medium text-primary-light">

@@ -32,7 +32,7 @@ function AddDish(props) {
           // Primero intentar obtener imágenes cacheadas
           let images = await getCachedImagesByCategory(category);
           
-          // Si no hay imágenes cacheadas, obtener imágenes de platillos existentes de esa categoría
+          // Si no hay imágenes cacheadas, obtener imágenes de productos existentes de esa categoría
           if (images.length === 0) {
             try {
               const response = await fetch("/api/dishes");
@@ -48,10 +48,10 @@ function AddDish(props) {
                     url: dish.image,
                     dataUrl: null,
                   }));
-                console.log(`✅ ${images.length} imágenes encontradas de platillos existentes para categoría: ${category}`);
+                console.log(`✅ ${images.length} imágenes encontradas de productos existentes para categoría: ${category}`);
               }
             } catch (error) {
-              console.error("Error obteniendo platillos:", error);
+              console.error("Error obteniendo productos:", error);
             }
           } else {
             console.log(`✅ ${images.length} imágenes cacheadas cargadas para categoría: ${category}`);
@@ -84,7 +84,7 @@ function AddDish(props) {
         image,
       })
       .then((res) => {
-        NormalToast("Platillo agregado exitosamente");
+        NormalToast("Producto agregado exitosamente");
         setTitle("");
         setDescription("");
         setPrice("");
@@ -102,63 +102,116 @@ function AddDish(props) {
   return (
     <>
       <Head>
-        <title>Alien Food | Agregar Platillo</title>
+        <title>TUNEL DEL TIEMPO | Agregar Producto</title>
       </Head>
-      <div className="heightFixAdmin px-3 sm:px-6 lg:py-20 sm:py-16 py-8 sm:py-12">
-        <div className="mx-auto max-w-screen-sm sm:text-base  text-sm ">
+      <div className="heightFixAdmin px-3 sm:px-6 lg:py-20 sm:py-16 py-8 sm:py-12 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="mx-auto max-w-screen-md sm:text-base text-sm">
           <div className="flex items-center gap-4 mb-4">
             <BackButton />
           </div>
-          <h2 className="lg:text-4xl sm:text-3xl text-2xl  font-bold mb-6">
-            Agregar Platillo
-          </h2>
-          <form onSubmit={formHandler} className="flex flex-col gap-4">
-            <input
-              type="text"
-              required
-              value={title}
-              placeholder="Título"
-              className="bg-gray-100 py-2 px-4 rounded-md outline-none border border-gray-200"
-              onChange={(e) => setTitle(e.target.value)}
-              disabled={disabled}
-            />
-            <select
-              required
-              className="bg-gray-100 py-2 px-4 rounded-md outline-none border border-gray-200 capitalize"
-              onChange={(e) => setCategory(e.target.value)}
-              disabled={disabled}
-            >
+          <div className="mb-6">
+            <h2 className="lg:text-4xl sm:text-3xl text-2xl font-bold mb-2 text-gray-800 dark:text-gray-200">
+              Agregar Nuevo Producto
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
+              Completa la información del producto para agregarlo al catálogo
+            </p>
+          </div>
+          <form onSubmit={formHandler} className="flex flex-col gap-5 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Nombre del Producto *
+              </label>
+              <input
+                type="text"
+                required
+                value={title}
+                placeholder="Ej: Figura de Acción Spider-Man Marvel Legends"
+                className="bg-gray-100 dark:bg-gray-700 py-2 px-4 rounded-md outline-none border border-gray-200 dark:border-gray-600 w-full text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-primary-light"
+                onChange={(e) => setTitle(e.target.value)}
+                disabled={disabled}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Categoría *
+              </label>
+              <select
+                required
+                className="bg-gray-100 dark:bg-gray-700 py-2 px-4 rounded-md outline-none border border-gray-200 dark:border-gray-600 capitalize w-full text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-primary-light"
+                onChange={(e) => setCategory(e.target.value)}
+                disabled={disabled}
+                value={category}
+              >
               {categories?.map((category) => (
                 <option value={category?.name} key={`option-${category?._id}`}>
                   {category?.name}
                 </option>
               ))}
             </select>
-            <textarea
-              required
-              placeholder="Descripción"
-              className="bg-gray-100 border border-gray-200 py-2 px-4 rounded-md resize-none h-24 outline-none"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              cols="25"
-              rows="10"
-              disabled={disabled}
-            ></textarea>
-            <input
-              type="number"
-              required
-              placeholder="Precio"
-              className="bg-gray-100 border py-2 px-4 rounded-md outline-none border-gray-200"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              disabled={disabled}
-            />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Descripción *
+              </label>
+              <textarea
+                required
+                placeholder="Descripción del producto (características, detalles, estado, etc.)"
+                className="bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 py-2 px-4 rounded-md resize-none h-32 outline-none w-full text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-primary-light"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                cols="25"
+                rows="10"
+                disabled={disabled}
+              ></textarea>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Precio (MXN)
+              </label>
+              <input
+                type="number"
+                required
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                className="bg-gray-100 dark:bg-gray-700 border py-2 px-4 rounded-md outline-none border-gray-200 dark:border-gray-600 w-full text-gray-800 dark:text-gray-200"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                disabled={disabled}
+              />
+            </div>
             
             {/* Selector de imagen */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Seleccionar Imagen
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Seleccionar Imagen del Producto
               </label>
+              {/* Input para subir archivo */}
+              <div className="mb-3">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setImage(reader.result);
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                  className="block w-full text-sm text-gray-500 dark:text-gray-400
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-md file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-primary-light file:text-white
+                    hover:file:bg-primary-dark
+                    cursor-pointer"
+                  disabled={disabled}
+                />
+              </div>
               {loadingImages ? (
                 <div className="text-center py-4 text-gray-500">
                   Cargando imágenes...
@@ -205,27 +258,57 @@ function AddDish(props) {
               
               {/* Campo de texto como alternativa */}
               <div className="mt-3">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   O ingresar URL de imagen manualmente
                 </label>
                 <input
-                  type="text"
-                  placeholder="URL de Imagen (opcional si seleccionaste una imagen arriba)"
-                  className="bg-gray-100 py-2 px-4 border rounded-md outline-none border-gray-200 w-full"
+                  type="url"
+                  placeholder="https://ejemplo.com/imagen.jpg"
+                  className="bg-gray-100 dark:bg-gray-700 py-2 px-4 border rounded-md outline-none border-gray-200 dark:border-gray-600 w-full text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-primary-light"
                   value={image}
                   onChange={(e) => setImage(e.target.value)}
                   disabled={disabled}
                 />
+                {image && (
+                  <div className="mt-2">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Vista previa:</p>
+                    <img 
+                      src={image} 
+                      alt="Preview" 
+                      className="max-w-xs h-32 object-cover rounded-md border border-gray-200 dark:border-gray-600"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             </div>
-            <button
-              type="submit"
-              className={`button py-2 px-10 sm:text-base text-sm mt-4 ${disabled ? "opacity-50" : ""
+            <div className="flex gap-4 mt-6">
+              <button
+                type="submit"
+                className={`flex-1 button py-3 px-10 sm:text-base text-sm font-semibold transition-all duration-300 hover:scale-105 ${
+                  disabled ? "opacity-50 cursor-not-allowed" : ""
                 }`}
-              disabled={disabled}
-            >
-              Enviar
-            </button>
+                disabled={disabled}
+              >
+                {disabled ? "Guardando..." : "Agregar Producto"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTitle("");
+                  setDescription("");
+                  setPrice("");
+                  setImage("");
+                  setCategory(props?.categories[0]?.name || "");
+                }}
+                className="button-ghost py-3 px-6 sm:text-base text-sm"
+                disabled={disabled}
+              >
+                Limpiar
+              </button>
+            </div>
           </form>
         </div>
       </div>

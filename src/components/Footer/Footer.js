@@ -72,7 +72,7 @@ function Footer({ admin }) {
           </div>
         </div>
         <p className="mt-6 text-gray-200 text-center">
-          © {new Date().getFullYear()} Alien Food. Todos los derechos reservados.
+          © {new Date().getFullYear()} TUNEL DEL TIEMPO. Todos los derechos reservados.
         </p>
       </div>
     </div>

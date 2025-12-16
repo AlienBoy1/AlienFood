@@ -80,21 +80,21 @@ self.addEventListener("push", async function (event) {
       try {
         const textData = rawData || (typeof event.data.text === 'function' ? event.data.text() : String(event.data || ""));
         data = { 
-          title: "Alien Food", 
+          title: "TUNEL DEL TIEMPO", 
           body: textData || "Tienes una nueva notificación" 
         };
         console.log("⚠️ Usando datos como texto plano:", data);
       } catch (fallbackError) {
         console.error("Error en fallback:", fallbackError);
-        data = { title: "Alien Food", body: "Tienes una nueva notificación" };
+        data = { title: "TUNEL DEL TIEMPO", body: "Tienes una nueva notificación" };
       }
     }
   } else {
     console.warn("⚠️ Push event sin datos");
-    data = { title: "Alien Food", body: "Tienes una nueva notificación" };
+    data = { title: "TUNEL DEL TIEMPO", body: "Tienes una nueva notificación" };
   }
 
-  const title = data.title || "Alien Food";
+  const title = data.title || "TUNEL DEL TIEMPO";
   const body = data.body || data.message || "Tienes una nueva notificación";
   
   // Generar un tag único para cada notificación para que no se reemplacen

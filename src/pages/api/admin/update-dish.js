@@ -23,7 +23,7 @@ async function handler(req, res) {
         // Validar ObjectId
         let dishId;
         try {
-            dishId = validateAndConvertObjectId(req.body._id, "ID del platillo");
+            dishId = validateAndConvertObjectId(req.body._id, "ID del producto");
         } catch (error) {
             return res.status(400).json({ message: error.message });
         }
@@ -40,12 +40,12 @@ async function handler(req, res) {
 
         const { db } = await connectToDatabase();
         
-        // Verificar que el platillo existe
+        // Verificar que el producto existe
         const existingDish = await db.collection("dishes").findOne({ _id: dishId });
         
         if (!existingDish) {
             return res.status(404).json({
-                message: "Platillo no encontrado",
+                message: "Producto no encontrado",
             });
         }
 
@@ -60,7 +60,7 @@ async function handler(req, res) {
             });
         }
 
-        // Actualizar el platillo
+        // Actualizar el producto
         const updateData = {
             ...validation.data,
             updatedAt: new Date(),
@@ -73,15 +73,15 @@ async function handler(req, res) {
 
         if (result.matchedCount === 0) {
             return res.status(404).json({
-                message: "Platillo no encontrado",
+                message: "Producto no encontrado",
             });
         }
 
         return res.status(200).json({
-            message: "Platillo actualizado exitosamente",
+            message: "Producto actualizado exitosamente",
         });
     } catch (err) {
-        console.error("Error actualizando platillo:", err);
+        console.error("Error actualizando producto:", err);
         return res.status(500).json({
             message: "Error interno del servidor",
         });

@@ -19,6 +19,32 @@ module.exports = withPWA({
     // IMPORTANTE: El listener de push debe registrarse de forma síncrona en sw-custom.js
     importScripts: ['/sw-custom.js'],
   },
+  // Configuración de imágenes para permitir dominios externos
+  images: {
+    // Desactivar optimización para imágenes externas (más rápido y evita errores)
+    unoptimized: false,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+    // Configuración adicional de optimización
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Permitir dominios sin restricciones para desarrollo
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+  },
   env: {
     stripe_public_key: process.env.STRIPE_PUBLIC_KEY,
   },
